@@ -17,7 +17,9 @@ import logging
 import subprocess
 from pathlib import Path
 
+from components.prefill_load_balancer import DecodeWorkerAndPrefillLoadBalancer
 from components.simple_load_balancer import SimpleLoadBalancer
+from components.worker import VllmPrefillWorker
 from fastapi import FastAPI
 from pydantic import BaseModel
 
@@ -58,7 +60,10 @@ class FrontendConfig(BaseModel):
     app=FastAPI(title="LLM Example"),
 )
 class Frontend:
-    worker = depends(SimpleLoadBalancer)
+    simple_load_balancer = depends(SimpleLoadBalancer)
+    # Frontend used in 2 different scenarios (prefill and decode workers)
+    load_balancer = depends(DecodeWorkerAndPrefillLoadBalancer)
+    worker = depends(VllmPrefillWorker)
 
     def __init__(self):
         """Initialize Frontend service with HTTP server and model configuration."""

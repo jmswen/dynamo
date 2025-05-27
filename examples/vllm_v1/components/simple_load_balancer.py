@@ -19,13 +19,13 @@ import uuid
 from typing import AsyncGenerator, Optional
 
 from components.worker import VllmDecodeWorker, VllmPrefillWorker
+
+from dynamo.llm import ModelType, register_llm
+from dynamo.sdk import async_on_start, depends, dynamo_context, endpoint, service
 from utils.args import parse_vllm_args
 from utils.protocol import MyRequestOutput, PreprocessedRequest, vLLMGenerateRequest
 from vllm.inputs import TokensPrompt
 from vllm.sampling_params import SamplingParams
-
-from dynamo.llm import ModelType, register_llm
-from dynamo.sdk import async_on_start, depends, dynamo_context, endpoint, service
 
 logger = logging.getLogger(__name__)
 
@@ -131,18 +131,18 @@ class SimpleLoadBalancer:
 
     @endpoint()
     async def generate(self, request: PreprocessedRequest):
-        logger.debug(
+        logger.info(
             "Processor received completion request: %s", request.model_dump_json()
         )
 
         vllm_request = self._create_vllm_request(request)
 
-        logger.debug("VLLM request: %s", vllm_request.model_dump_json())
+        logger.info("VLLM request: %s", vllm_request.model_dump_json())
 
         if self.enable_disagg:
             prefill_response = await self.send_request_to_prefill(vllm_request)
 
-            logger.debug("Prefill response: %s", prefill_response.model_dump_json())
+            logger.info("Prefill response: %s", prefill_response.model_dump_json())
         else:
             prefill_response = None
 
