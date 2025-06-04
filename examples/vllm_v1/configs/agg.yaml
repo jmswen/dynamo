@@ -14,7 +14,6 @@
 # limitations under the License.
 Common:
   model: Qwen/Qwen3-0.6B
-  data-parallel-size: 2
   block-size: 16
   max-model-len: 16384
   served_model_name: Qwen/Qwen3-0.6B
@@ -27,9 +26,14 @@ VllmDecodeWorker:
   enforce-eager: true
   max-num-batched-tokens: 16384
   enable-prefix-caching: true
+  data-parallel-address: ::1
+  data-parallel-rpc-port: 62300
+  data-parallel-size: 2
+  data-parallel-size-local: 1
+  # api-server-count: 2
+
   ServiceArgs:
     workers: 1  # 2 workers
     resources:
-      gpu: 2  # 2 dp ranks
-  common-configs: [model, served_model_name, block-size, data-parallel-size, max-model-len]
-
+      gpu: 1  # 2 dp ranks
+  common-configs: [model, served_model_name, block-size, max-model-len]
